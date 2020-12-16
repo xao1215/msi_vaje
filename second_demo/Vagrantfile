@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "ubuntu/bionic64"
+    ubuntu.vm.provider :virtualbox do |v|
+        v.memory = 1024
+        v.cpus = 2
+        v.name = "ubuntu vm"
+    end
+    ubuntu.vm.network "private_network", ip: "192.168.50.4"
+    ubuntu.vm.network "forwarded_port", guest: 80, host: 8080
+    ubuntu.vm.hostname = "ubuntu"
+    ubuntu.vm.provision "shell", inline: <<-SHELL
+      apt-get update
+      apt-get install -y nginx
+      ln -s /vagrant /usr/share/nginx/html/demo
+      ln -s /vagrant /var/www/html/demo
+
+    SHELL
+    # ubuntu.vm.provision :shell, :inline => "ln -s /vagrant /usr/share/nginx/html/demo"
+  end
+
+  config.vm.define "debian" do |d|
+    d.vm.box = "debian/buster64"
+    d.vm.provider :virtualbox do |x|
+        x.memory = 1024
+        x.cpus = 1
+        x.name = "debian vm"
+    end
+    d.vm.network "private_network", ip: "192.168.50.5"
+    d.vm.hostname = "debian"
+  end
+end
